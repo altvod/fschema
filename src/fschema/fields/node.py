@@ -3,11 +3,15 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
+from pathlib import Path
+from typing import TYPE_CHECKING, Any
 
 from fschema.data_transformers import DataTransformer, IdentityTransformer
 from fschema.fields.base import Field, LoadContext
 from fschema.readers import Reader, TextReader
+
+if TYPE_CHECKING:
+    from fschema.schema import Schema
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -29,7 +33,7 @@ class NodeField(Field):
             raise ValueError("Field is not bound to a schema attribute")
         return self.attribute_name
 
-    def _resolve_path(self, context: LoadContext) -> Any:
+    def _resolve_path(self, context: LoadContext) -> Path:
         if self.fs_name is None and self.attribute_name is None:
             return context.path
         return context.fs.child_path(context.path, self._resolve_fs_name())
@@ -62,9 +66,9 @@ class File(NodeField):
 class SchematizedFile(NodeField):
     """Load a child file through another schema."""
 
-    file_schema: Any
+    file_schema: Schema
 
-    def __init__(self, file_schema: Any, *, fs_name: str | None = None) -> None:
+    def __init__(self, file_schema: Schema, *, fs_name: str | None = None) -> None:
         object.__setattr__(self, "attribute_name", None)
         object.__setattr__(self, "fs_name", fs_name)
         object.__setattr__(self, "file_schema", file_schema)
@@ -79,9 +83,14 @@ class SchematizedFile(NodeField):
 class SchematizedDirectory(NodeField):
     """Load a child directory through another schema."""
 
-    directory_schema: Any
+    directory_schema: Schema
 
-    def __init__(self, directory_schema: Any, *, fs_name: str | None = None) -> None:
+    def __init__(
+        self,
+        directory_schema: Schema,
+        *,
+        fs_name: str | None = None,
+    ) -> None:
         object.__setattr__(self, "attribute_name", None)
         object.__setattr__(self, "fs_name", fs_name)
         object.__setattr__(self, "directory_schema", directory_schema)

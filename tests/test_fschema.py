@@ -168,7 +168,7 @@ class FSchemaTests(unittest.TestCase):
         )
 
         self.assertEqual(
-            FSLoader(schema=ServiceConfigSchema(), fs=fs).load(()),
+            FSLoader(schema=ServiceConfigSchema(), fs=fs).load(Path(".")),
             {
                 "plugins": [
                     {"name": "java", "config": "runtime: jvm"},
@@ -212,35 +212,37 @@ class MemoryFSInterface(FSInterface):
     def __init__(self, tree: dict[str, Any]) -> None:
         self.tree = tree
 
-    def node_name(self, path: tuple[str, ...]) -> str:
-        return path[-1] if path else ""
+    def node_name(self, path: Path) -> str:
+        return path.name
 
-    def child_path(self, path: tuple[str, ...], fs_name: str) -> tuple[str, ...]:
-        return (*path, fs_name)
+    def child_path(self, path: Path, fs_name: str) -> Path:
+        return path / fs_name
 
-    def list_directory(self, path: tuple[str, ...]) -> list[tuple[str, ...]]:
+    def list_directory(self, path: Path) -> list[Path]:
         node = self._get(path)
         if not isinstance(node, dict):
             raise NotADirectoryError(path)
-        return [(*path, name) for name in sorted(node)]
+        return [path / name for name in sorted(node)]
 
-    def require_file(self, path: tuple[str, ...]) -> None:
+    def require_file(self, path: Path) -> None:
         if not isinstance(self._get(path), str):
             raise FileNotFoundError(path)
 
-    def require_directory(self, path: tuple[str, ...]) -> None:
+    def require_directory(self, path: Path) -> None:
         if not isinstance(self._get(path), dict):
             raise NotADirectoryError(path)
 
-    def read_file(self, path: tuple[str, ...], *, encoding: str = "utf-8") -> str:
+    def read_file(self, path: Path, *, encoding: str = "utf-8") -> str:
         node = self._get(path)
         if not isinstance(node, str):
             raise FileNotFoundError(path)
         return node
 
-    def _get(self, path: tuple[str, ...]) -> Any:
+    def _get(self, path: Path) -> Any:
         node: Any = self.tree
-        for part in path:
+        for part in path.parts:
+            if part == ".":
+                continue
             if not isinstance(node, dict) or part not in node:
                 raise FileNotFoundError(path)
             node = node[part]

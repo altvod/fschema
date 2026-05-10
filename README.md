@@ -128,12 +128,12 @@ Available content readers:
 Filesystem access is abstracted behind `FSInterface`, available from `fschema.fs`.
 The default `LocalFSInterface`, also available from `fschema.fs`, supports local paths via `pathlib`.
 Custom backends can implement:
-- `node_name(path)`
-- `child_path(path, fs_name)`
-- `list_directory(path)`
-- `require_file(path)`
-- `require_directory(path)`
-- `read_file(path, encoding="utf-8")`
+- `node_name(path: Path) -> str`
+- `child_path(path: Path, fs_name: str) -> Path`
+- `list_directory(path: Path) -> list[Path]`
+- `require_file(path: Path) -> None`
+- `require_directory(path: Path) -> None`
+- `read_file(path: Path, encoding="utf-8") -> str`
 
 ### Data Transformers
 
