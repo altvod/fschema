@@ -59,6 +59,16 @@ This will load the following data:
 }
 ```
 
+If you want to add post-processing of the data to your schema
+(e.g. validate it or convert it to an object), you can define a `__fschema_post_load__` method:
+```python
+class ServiceConfigSchema(Schema):
+    ...
+    def __fschema_post_load__(self, data: dict) -> ServiceConfiguration:
+        return ServiceConfiguration(**data)
+```
+
+
 ## Reference
 
 ### Fields
