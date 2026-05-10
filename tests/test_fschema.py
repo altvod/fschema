@@ -13,7 +13,7 @@ from fschema.fields.meta import MetaField
 from fschema.fields.node import NodeField
 from fschema.fields import meta, node
 from fschema.fs_loader import FSLoader
-from fschema.fs_interface import FSInterface, LocalFSInterface
+from fschema.fs import FSInterface, LocalFSInterface
 from fschema.readers import JSONReader, TextReader
 from fschema.schema import Schema
 

@@ -6,7 +6,7 @@ from copy import copy
 from dataclasses import dataclass, field
 from typing import Any, Callable
 
-from fschema.fs_interface import FSInterface
+from fschema.fs import FSInterface
 
 
 @dataclass(frozen=True)

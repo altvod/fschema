@@ -24,6 +24,7 @@ through an `FSInterface`. `FSLoader` uses `LocalFSInterface` by default, but cus
 backends can be provided with `FSLoader(schema=..., fs=...)`.
 
 ```python
+from fschema.fs import FSInterface, LocalFSInterface
 from fschema.fields import meta, node
 from fschema.schema import Schema
 from fschema.fs_loader import FSLoader
@@ -124,8 +125,8 @@ Available content readers:
 
 ### Filesystem Interface
 
-Filesystem access is abstracted behind `FSInterface`.
-The default `LocalFSInterface` supports local paths via `pathlib`.
+Filesystem access is abstracted behind `FSInterface`, available from `fschema.fs`.
+The default `LocalFSInterface`, also available from `fschema.fs`, supports local paths via `pathlib`.
 Custom backends can implement:
 - `node_name(path)`
 - `child_path(path, fs_name)`

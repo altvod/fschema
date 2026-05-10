@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from fschema.fields.base import Field, LoadContext
-from fschema.fs_interface import FSInterface, LocalFSInterface
+from fschema.fs import FSInterface, LocalFSInterface
 
 
 @dataclass(frozen=True)
