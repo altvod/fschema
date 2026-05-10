@@ -10,7 +10,33 @@ from fschema.fields.base import Field, LoadContext
 from fschema.readers import Reader, TextReader
 
 
-class File(Field):
+class NodeField(Field):
+    """Base class for fields that resolve filesystem child node names."""
+
+    def __init__(self, *, fs_name: str | None = None) -> None:
+        super().__init__()
+        self.fs_name = fs_name
+
+    @property
+    def effective_fs_name(self) -> str:
+        """Filesystem node name resolved from ``fs_name`` or the schema attribute."""
+
+        return self._resolve_fs_name()
+
+    def _resolve_fs_name(self) -> str:
+        if self.fs_name is not None:
+            return self.fs_name
+        if self.attribute_name is None:
+            raise ValueError("Field is not bound to a schema attribute")
+        return self.attribute_name
+
+    def _resolve_path(self, context: LoadContext) -> Path:
+        if self.fs_name is None and self.attribute_name is None:
+            return context.path
+        return context.path / self._resolve_fs_name()
+
+
+class File(NodeField):
     """Load a child file as parsed content."""
 
     def __init__(
@@ -30,7 +56,7 @@ class File(Field):
         return self.data_transformer.transform(self.reader.read(path))
 
 
-class SchematizedFile(Field):
+class SchematizedFile(NodeField):
     """Load a child file through another schema."""
 
     def __init__(self, file_schema: Any, *, fs_name: str | None = None) -> None:
@@ -43,10 +69,10 @@ class SchematizedFile(Field):
         return self.file_schema.load(path)
 
 
-class SchematizedDirectory(Field):
+class SchematizedDirectory(NodeField):
     """Load a child directory through another schema."""
 
-    def __init__(self, directory_schema: Any, *, fs_name: str | None = None) -> None:
+    def __init__(self, directory_schema: SchematizedDirectory, *, fs_name: str | None = None) -> None:
         super().__init__(fs_name=fs_name)
         self.directory_schema = directory_schema
 
@@ -56,7 +82,7 @@ class SchematizedDirectory(Field):
         return self.directory_schema.load(path)
 
 
-class DictDirectory(Field):
+class DictDirectory(NodeField):
     """Load all children of a directory as a mapping."""
 
     def __init__(self, nested_field: Field, *, fs_name: str | None = None) -> None:
@@ -72,7 +98,7 @@ class DictDirectory(Field):
         }
 
 
-class ListDirectory(Field):
+class ListDirectory(NodeField):
     """Load all children of a directory as a list."""
 
     def __init__(self, nested_field: Field, *, fs_name: str | None = None) -> None:
@@ -89,10 +115,8 @@ def _iter_children(path: Path) -> list[Path]:
     return sorted(path.iterdir(), key=lambda child: child.name)
 
 
-def _target_path(context: LoadContext, field: Field) -> Path:
-    if field.fs_name is None and field.attribute_name is None:
-        return context.path
-    return context.path / field._resolve_fs_name()
+def _target_path(context: LoadContext, field: NodeField) -> Path:
+    return field._resolve_path(context)
 
 
 def _require_file(path: Path) -> None:

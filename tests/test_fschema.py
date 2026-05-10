@@ -8,6 +8,9 @@ from tempfile import TemporaryDirectory
 from typing import Any
 
 from fschema.data_transformers import MarshmallowLoader
+from fschema.fields.base import Field
+from fschema.fields.meta import MetaField
+from fschema.fields.node import NodeField
 from fschema.fields import meta, node
 from fschema.fs_loader import FSLoader
 from fschema.readers import JSONReader
@@ -122,6 +125,18 @@ class FSchemaTests(unittest.TestCase):
             "config.yaml",
         )
         self.assertEqual(ConfigSchema._declared_fields["env"].effective_fs_name, "env")
+
+    def test_node_and_meta_fields_have_separate_base_classes(self) -> None:
+        file_field = node.File()
+        meta_field = meta.NodeName()
+
+        self.assertIsInstance(file_field, Field)
+        self.assertIsInstance(file_field, NodeField)
+        self.assertNotIsInstance(file_field, MetaField)
+        self.assertIsInstance(meta_field, Field)
+        self.assertIsInstance(meta_field, MetaField)
+        self.assertNotIsInstance(meta_field, NodeField)
+        self.assertFalse(hasattr(meta_field, "effective_fs_name"))
 
 
 def _write(path: Path, content: str) -> None:

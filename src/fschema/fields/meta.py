@@ -9,14 +9,18 @@ from fschema.fields.base import Field, LoadContext
 from fschema.readers import Reader, TextReader
 
 
-class NodeName(Field):
+class MetaField(Field):
+    """Base class for fields that read the current filesystem node."""
+
+
+class NodeName(MetaField):
     """Load the name of the current filesystem node."""
 
     def load(self, context: LoadContext) -> str:
         return context.path.name
 
 
-class Content(Field):
+class Content(MetaField):
     """Load the content of the current filesystem file."""
 
     def __init__(

@@ -77,6 +77,7 @@ class ServiceConfigSchema(Schema):
 
 Meta fields are the fields that use the metadata of the respective filesystem node (directory/file)
 and provide access to its various properties.
+All meta fields inherit from `MetaField`.
 
 Meta field types:
 - `NodeName()` - special type of field that loads the name of the current node (directory or file)
@@ -87,6 +88,7 @@ Meta field types:
 #### Node Fields
 
 Node fields correspond to actual filesystem nodes (directories/fields).
+All node fields inherit from `NodeField`.
 
 All node fields have the optional argument `fs_name` - this is the name of the filesystem node
 the field corresponds to - useful if the filename has a period (`.`) in it,
