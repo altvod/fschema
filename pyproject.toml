@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fschema"
-version = "0.1.0"
+version = "0.1.1"
 description = "Marshmallow-like schematization of a directory structure"
 readme = "README.md"
 requires-python = ">=3.10"
