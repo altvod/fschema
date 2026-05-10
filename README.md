@@ -138,4 +138,4 @@ Custom backends can implement:
 ### Data Transformers
 
 Available data transformers:
-- `MarshmallowLoader(schema: marshmallow.Schema)` - loads the file data via a `marshmallow` schema
+- `MarshmallowLoader(schema: Any)` - loads the file data via a `marshmallow` schema
