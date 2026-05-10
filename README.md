@@ -27,17 +27,17 @@ from fschema.fs_loader import FSLoader
 
 class PluginConfigSchema(Schema):
     name = meta.NodeName()
-    config = node.File(name="plugin.yaml")
+    config = node.File(fs_name="plugin.yaml")
 
 class ProfileConfigSchema(Schema):
     name = meta.NodeName()
     config = meta.Content()
 
 class ServiceConfigSchema(Schema):
-    config = node.File(name="config.yaml")
-    env = node.File(name="env")
+    config = node.File(fs_name="config.yaml")
+    env = node.File(fs_name="env")
     plugins = node.ListDirectory(node.SchematizedDirectory(PluginConfigSchema()))
-    profiles = node.ListDirectory(node.SchematizedFile(PluginConfigSchema()))
+    profiles = node.ListDirectory(node.SchematizedFile(ProfileConfigSchema()))
 
 data = FSLoader(schema=ServiceConfigSchema()).load("/path/to/config")
 print(data)
@@ -88,22 +88,24 @@ Meta field types:
 
 Node fields correspond to actual filesystem nodes (directories/fields).
 
-All node fields have the optional argument `name` - this is the name of the filesystem node
+All node fields have the optional argument `fs_name` - this is the name of the filesystem node
 the field corresponds to - useful if the filename has a period (`.`) in it,
 and, therefore cannot be used as the field's attribute name.
+Fields also expose `effective_fs_name`, which is the resolved filesystem name:
+the explicit `fs_name` when provided, otherwise the schema attribute name.
 
 Node field types:
-- `SchematizedDirectory(directory_schema: Schema)` - load directory as a key-value mapping
+- `SchematizedDirectory(directory_schema: Schema, fs_name: str | None)` - load directory as a key-value mapping
   and apply the given sub-schema to the directory itself;
   this means nested files and directories must have fixed names
-- `DictDirectory(nested_field: Field)` - load directory as a free mapping, without fixed key values;
+- `DictDirectory(nested_field: Field, fs_name: str | None)` - load directory as a free mapping, without fixed key values;
   the given field instance is applied to all nested nodes
-- `ListDirectory(nested_field: Field)` - load directory as a list of nodes;
+- `ListDirectory(nested_field: Field, fs_name: str | None)` - load directory as a list of nodes;
   the given field instance is applied to all nested nodes
-- `File(reader: Reader, data_transformer: DataTransformer)` - load file content;
+- `File(fs_name: str | None, reader: Reader, data_transformer: DataTransformer)` - load file content;
   `reader` parses the content to JSON-like data;
   `data_transformer` loads it into an object and/or validates the data
-- `SchematizedFile(file_schema: Schema)` - load the file as a schematized mapping instead of a single flat object;
+- `SchematizedFile(file_schema: Schema, fs_name: str | None)` - load the file as a schematized mapping instead of a single flat object;
   this is useful if you need access to its metadata (e.g. via `NodeName`);
 
 ### Content Readers

@@ -27,15 +27,15 @@ class FSchemaTests(unittest.TestCase):
 
             class PluginConfigSchema(Schema):
                 name = meta.NodeName()
-                config = node.File(name="plugin.yaml")
+                config = node.File(fs_name="plugin.yaml")
 
             class ProfileConfigSchema(Schema):
                 name = meta.NodeName()
                 config = meta.Content()
 
             class ServiceConfigSchema(Schema):
-                config = node.File(name="config.yaml")
-                env = node.File(name="env")
+                config = node.File(fs_name="config.yaml")
+                env = node.File(fs_name="env")
                 plugins = node.ListDirectory(
                     node.SchematizedDirectory(PluginConfigSchema())
                 )
@@ -88,7 +88,7 @@ class FSchemaTests(unittest.TestCase):
 
             class ConfigSchema(Schema):
                 settings = node.File(
-                    name="settings.json",
+                    fs_name="settings.json",
                     reader=JSONReader(),
                     data_transformer=MarshmallowLoader(SettingsLoader()),
                 )
@@ -111,6 +111,17 @@ class FSchemaTests(unittest.TestCase):
                     return Config(**data)
 
             self.assertEqual(ConfigSchema().load(root), Config(env="dev"))
+
+    def test_field_exposes_effective_fs_name(self) -> None:
+        class ConfigSchema(Schema):
+            config = node.File(fs_name="config.yaml")
+            env = node.File()
+
+        self.assertEqual(
+            ConfigSchema._declared_fields["config"].effective_fs_name,
+            "config.yaml",
+        )
+        self.assertEqual(ConfigSchema._declared_fields["env"].effective_fs_name, "env")
 
 
 def _write(path: Path, content: str) -> None:

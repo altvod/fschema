@@ -16,11 +16,11 @@ class File(Field):
     def __init__(
         self,
         *,
-        name: str | None = None,
+        fs_name: str | None = None,
         reader: Reader | None = None,
         data_transformer: DataTransformer | None = None,
     ) -> None:
-        super().__init__(name=name)
+        super().__init__(fs_name=fs_name)
         self.reader = reader or TextReader()
         self.data_transformer = data_transformer or IdentityTransformer()
 
@@ -33,8 +33,8 @@ class File(Field):
 class SchematizedFile(Field):
     """Load a child file through another schema."""
 
-    def __init__(self, file_schema: Any, *, name: str | None = None) -> None:
-        super().__init__(name=name)
+    def __init__(self, file_schema: Any, *, fs_name: str | None = None) -> None:
+        super().__init__(fs_name=fs_name)
         self.file_schema = file_schema
 
     def load(self, context: LoadContext) -> Any:
@@ -46,8 +46,8 @@ class SchematizedFile(Field):
 class SchematizedDirectory(Field):
     """Load a child directory through another schema."""
 
-    def __init__(self, directory_schema: Any, *, name: str | None = None) -> None:
-        super().__init__(name=name)
+    def __init__(self, directory_schema: Any, *, fs_name: str | None = None) -> None:
+        super().__init__(fs_name=fs_name)
         self.directory_schema = directory_schema
 
     def load(self, context: LoadContext) -> Any:
@@ -59,12 +59,12 @@ class SchematizedDirectory(Field):
 class DictDirectory(Field):
     """Load all children of a directory as a mapping."""
 
-    def __init__(self, nested_field: Field, *, name: str | None = None) -> None:
-        super().__init__(name=name)
+    def __init__(self, nested_field: Field, *, fs_name: str | None = None) -> None:
+        super().__init__(fs_name=fs_name)
         self.nested_field = nested_field
 
     def load(self, context: LoadContext) -> dict[str, Any]:
-        path = context.path / self.node_name
+        path = context.path / self.effective_fs_name
         _require_directory(path)
         return {
             child.name: self.nested_field.load(LoadContext(child))
@@ -75,12 +75,12 @@ class DictDirectory(Field):
 class ListDirectory(Field):
     """Load all children of a directory as a list."""
 
-    def __init__(self, nested_field: Field, *, name: str | None = None) -> None:
-        super().__init__(name=name)
+    def __init__(self, nested_field: Field, *, fs_name: str | None = None) -> None:
+        super().__init__(fs_name=fs_name)
         self.nested_field = nested_field
 
     def load(self, context: LoadContext) -> list[Any]:
-        path = context.path / self.node_name
+        path = context.path / self.effective_fs_name
         _require_directory(path)
         return [self.nested_field.load(LoadContext(child)) for child in _iter_children(path)]
 
@@ -90,9 +90,9 @@ def _iter_children(path: Path) -> list[Path]:
 
 
 def _target_path(context: LoadContext, field: Field) -> Path:
-    if field.name is None and field.attribute_name is None:
+    if field.fs_name is None and field.attribute_name is None:
         return context.path
-    return context.path / field.node_name
+    return context.path / field._resolve_fs_name()
 
 
 def _require_file(path: Path) -> None:
