@@ -70,9 +70,9 @@ and provide access to its various properties.
 
 Meta field types:
 - `NodeName()` - special type of field that loads the name of the current node (directory or file)
-- `Content(content_reader: ContentReader, content_loader: ContentLoader)` - for use inside a sub-schema of a `SchematizedFile`;
-  `content_reader` parses the content to JSON-like data;
-  `content_loader` loads it into an object and/or validates the data
+- `Content(reader: Reader, data_transformer: DataTransformer)` - for use inside a sub-schema of a `SchematizedFile`;
+  `reader` parses the content to JSON-like data;
+  `data_transformer` loads it into an object and/or validates the data
 
 #### Node Fields
 
@@ -90,9 +90,9 @@ Node field types:
   the given field instance is applied to all nested nodes
 - `ListDirectory(nested_field: Field)` - load directory as a list of nodes;
   the given field instance is applied to all nested nodes
-- `File(content_reader: ContentReader, content_loader: ContentLoader)` - load file content;
-  `content_reader` parses the content to JSON-like data;
-  `content_loader` loads it into an object and/or validates the data
+- `File(reader: Reader, data_transformer: DataTransformer)` - load file content;
+  `reader` parses the content to JSON-like data;
+  `data_transformer` loads it into an object and/or validates the data
 - `SchematizedFile(file_schema: Schema)` - load the file as a schematized mapping instead of a single flat object;
   this is useful if you need access to its metadata (e.g. via `NodeName`);
 
@@ -103,7 +103,7 @@ Available content readers:
 - `YamlReader` - loads data as YAML (as a `dict`)
 - `TextReader` - loads data as text (`str`); this is the default reader
 
-### Content Loaders
+### Data Transformers
 
-Available content converters:
+Available data transformers:
 - `MarshmallowLoader(schema: marshmallow.Schema)` - loads the file data via a `marshmallow` schema
