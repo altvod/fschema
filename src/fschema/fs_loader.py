@@ -2,18 +2,23 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 from typing import Any
 
 from fschema.fields.base import Field, LoadContext
 from fschema.fs_interface import FSInterface, LocalFSInterface
 
 
+@dataclass(frozen=True)
 class FSLoader:
     """Load a filesystem path with a schema."""
 
-    def __init__(self, schema: Any, fs: FSInterface | None = None) -> None:
-        self.schema = schema
-        self.fs = fs or LocalFSInterface()
+    schema: Any
+    fs: FSInterface | None = field(default_factory=LocalFSInterface)
+
+    def __post_init__(self) -> None:
+        if self.fs is None:
+            object.__setattr__(self, "fs", LocalFSInterface())
 
     def load(self, path: Any) -> Any:
         return self._load_schema(self.schema, path)

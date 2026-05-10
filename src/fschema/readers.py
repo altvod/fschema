@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 import json
 from typing import Any, Protocol
 
@@ -13,31 +14,31 @@ class Reader(Protocol):
         """Return parsed content for raw file *content*."""
 
 
+@dataclass(frozen=True, kw_only=True)
 class TextReader:
     """Return file content as text."""
 
-    def __init__(self, *, encoding: str = "utf-8") -> None:
-        self.encoding = encoding
+    encoding: str = "utf-8"
 
     def read(self, content: str) -> str:
         return content
 
 
+@dataclass(frozen=True, kw_only=True)
 class JSONReader:
     """Parse file content as JSON."""
 
-    def __init__(self, *, encoding: str = "utf-8") -> None:
-        self.encoding = encoding
+    encoding: str = "utf-8"
 
     def read(self, content: str) -> Any:
         return json.loads(content)
 
 
+@dataclass(frozen=True, kw_only=True)
 class YamlReader:
     """Parse file content as YAML."""
 
-    def __init__(self, *, encoding: str = "utf-8") -> None:
-        self.encoding = encoding
+    encoding: str = "utf-8"
 
     def read(self, content: str) -> Any:
         try:

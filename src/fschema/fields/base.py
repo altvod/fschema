@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from copy import copy
+from dataclasses import dataclass, field
 from typing import Any, Callable
 
 from fschema.fs_interface import FSInterface
@@ -18,14 +19,16 @@ class LoadContext:
     load_field: Callable[["Field", Any], Any]
 
 
+@dataclass(frozen=True)
 class Field:
     """Base class for all fschema fields."""
 
-    def __init__(self) -> None:
-        self.attribute_name: str | None = None
+    attribute_name: str | None = field(default=None, init=False)
 
-    def bind(self, attribute_name: str) -> None:
-        self.attribute_name = attribute_name
+    def bind(self, attribute_name: str) -> Field:
+        bound = copy(self)
+        object.__setattr__(bound, "attribute_name", attribute_name)
+        return bound
 
     def load(self, context: LoadContext) -> Any:
         raise NotImplementedError

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 from typing import Any
 
 from fschema.data_transformers import DataTransformer, IdentityTransformer
@@ -9,12 +10,11 @@ from fschema.fields.base import Field, LoadContext
 from fschema.readers import Reader, TextReader
 
 
+@dataclass(frozen=True, kw_only=True)
 class NodeField(Field):
     """Base class for fields that resolve filesystem child node names."""
 
-    def __init__(self, *, fs_name: str | None = None) -> None:
-        super().__init__()
-        self.fs_name = fs_name
+    fs_name: str | None = None
 
     @property
     def effective_fs_name(self) -> str:
@@ -35,19 +35,20 @@ class NodeField(Field):
         return context.fs.child_path(context.path, self._resolve_fs_name())
 
 
+@dataclass(frozen=True, kw_only=True)
 class File(NodeField):
     """Load a child file as parsed content."""
 
-    def __init__(
-        self,
-        *,
-        fs_name: str | None = None,
-        reader: Reader | None = None,
-        data_transformer: DataTransformer | None = None,
-    ) -> None:
-        super().__init__(fs_name=fs_name)
-        self.reader = reader or TextReader()
-        self.data_transformer = data_transformer or IdentityTransformer()
+    reader: Reader | None = field(default_factory=TextReader)
+    data_transformer: DataTransformer | None = field(
+        default_factory=IdentityTransformer
+    )
+
+    def __post_init__(self) -> None:
+        if self.reader is None:
+            object.__setattr__(self, "reader", TextReader())
+        if self.data_transformer is None:
+            object.__setattr__(self, "data_transformer", IdentityTransformer())
 
     def load(self, context: LoadContext) -> Any:
         path = self._resolve_path(context)
@@ -57,12 +58,16 @@ class File(NodeField):
         return self.data_transformer.transform(self.reader.read(content))
 
 
+@dataclass(frozen=True, init=False)
 class SchematizedFile(NodeField):
     """Load a child file through another schema."""
 
+    file_schema: Any
+
     def __init__(self, file_schema: Any, *, fs_name: str | None = None) -> None:
-        super().__init__(fs_name=fs_name)
-        self.file_schema = file_schema
+        object.__setattr__(self, "attribute_name", None)
+        object.__setattr__(self, "fs_name", fs_name)
+        object.__setattr__(self, "file_schema", file_schema)
 
     def load(self, context: LoadContext) -> Any:
         path = self._resolve_path(context)
@@ -70,12 +75,16 @@ class SchematizedFile(NodeField):
         return context.load_schema(self.file_schema, path)
 
 
+@dataclass(frozen=True, init=False)
 class SchematizedDirectory(NodeField):
     """Load a child directory through another schema."""
 
+    directory_schema: Any
+
     def __init__(self, directory_schema: Any, *, fs_name: str | None = None) -> None:
-        super().__init__(fs_name=fs_name)
-        self.directory_schema = directory_schema
+        object.__setattr__(self, "attribute_name", None)
+        object.__setattr__(self, "fs_name", fs_name)
+        object.__setattr__(self, "directory_schema", directory_schema)
 
     def load(self, context: LoadContext) -> Any:
         path = self._resolve_path(context)
@@ -83,12 +92,16 @@ class SchematizedDirectory(NodeField):
         return context.load_schema(self.directory_schema, path)
 
 
+@dataclass(frozen=True, init=False)
 class DictDirectory(NodeField):
     """Load all children of a directory as a mapping."""
 
+    nested_field: Field
+
     def __init__(self, nested_field: Field, *, fs_name: str | None = None) -> None:
-        super().__init__(fs_name=fs_name)
-        self.nested_field = nested_field
+        object.__setattr__(self, "attribute_name", None)
+        object.__setattr__(self, "fs_name", fs_name)
+        object.__setattr__(self, "nested_field", nested_field)
 
     def load(self, context: LoadContext) -> dict[str, Any]:
         path = self._resolve_path(context)
@@ -99,12 +112,16 @@ class DictDirectory(NodeField):
         }
 
 
+@dataclass(frozen=True, init=False)
 class ListDirectory(NodeField):
     """Load all children of a directory as a list."""
 
+    nested_field: Field
+
     def __init__(self, nested_field: Field, *, fs_name: str | None = None) -> None:
-        super().__init__(fs_name=fs_name)
-        self.nested_field = nested_field
+        object.__setattr__(self, "attribute_name", None)
+        object.__setattr__(self, "fs_name", fs_name)
+        object.__setattr__(self, "nested_field", nested_field)
 
     def load(self, context: LoadContext) -> list[Any]:
         path = self._resolve_path(context)

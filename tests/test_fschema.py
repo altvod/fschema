@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import unittest
-from dataclasses import dataclass
+from dataclasses import FrozenInstanceError, dataclass, is_dataclass
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any
@@ -13,8 +13,8 @@ from fschema.fields.meta import MetaField
 from fschema.fields.node import NodeField
 from fschema.fields import meta, node
 from fschema.fs_loader import FSLoader
-from fschema.fs_interface import FSInterface
-from fschema.readers import JSONReader
+from fschema.fs_interface import FSInterface, LocalFSInterface
+from fschema.readers import JSONReader, TextReader
 from fschema.schema import Schema
 
 
@@ -176,6 +176,31 @@ class FSchemaTests(unittest.TestCase):
                 ]
             },
         )
+
+    def test_core_descriptors_are_frozen_dataclasses(self) -> None:
+        class ConfigSchema(Schema):
+            env = node.File()
+
+        objects = [
+            ConfigSchema(),
+            ConfigSchema._declared_fields["env"],
+            meta.Content(),
+            TextReader(),
+            FSLoader(schema=ConfigSchema()),
+            LocalFSInterface(),
+        ]
+
+        for obj in objects:
+            self.assertTrue(is_dataclass(obj))
+
+        with self.assertRaises(FrozenInstanceError):
+            ConfigSchema._declared_fields["env"].fs_name = "other"
+
+    def test_schema_is_slotted_but_not_frozen(self) -> None:
+        schema = Schema()
+
+        with self.assertRaises(AttributeError):
+            schema.extra = "value"
 
 
 def _write(path: Path, content: str) -> None:

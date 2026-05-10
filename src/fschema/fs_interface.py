@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Protocol
 
@@ -28,6 +29,7 @@ class FSInterface(Protocol):
         """Return file content from *path*."""
 
 
+@dataclass(frozen=True)
 class LocalFSInterface:
     """FSInterface implementation backed by pathlib and the local filesystem."""
 

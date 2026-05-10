@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Any, Protocol
 
 
@@ -12,6 +13,7 @@ class DataTransformer(Protocol):
         """Return transformed *data*."""
 
 
+@dataclass(frozen=True)
 class IdentityTransformer:
     """Return parsed content unchanged."""
 
@@ -19,11 +21,11 @@ class IdentityTransformer:
         return data
 
 
+@dataclass(frozen=True)
 class MarshmallowLoader:
     """Load parsed data through a marshmallow schema."""
 
-    def __init__(self, schema: Any) -> None:
-        self.schema = schema
+    schema: Any
 
     def transform(self, data: Any) -> Any:
         return self.schema.load(data)
