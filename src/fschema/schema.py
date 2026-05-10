@@ -3,10 +3,9 @@
 from __future__ import annotations
 
 from collections import OrderedDict
-from pathlib import Path
 from typing import Any
 
-from fschema.fields.base import Field, LoadContext
+from fschema.fields.base import Field
 
 
 class SchemaMeta(type):
@@ -30,14 +29,6 @@ class Schema(metaclass=SchemaMeta):
     """Declarative schema for loading a filesystem node."""
 
     _declared_fields: OrderedDict[str, Field]
-
-    def load(self, path: str | Path) -> Any:
-        context = LoadContext(Path(path))
-        data = {
-            attribute_name: field.load(context)
-            for attribute_name, field in self._declared_fields.items()
-        }
-        return self.__fschema_post_load__(data)
 
     def __fschema_post_load__(self, data: dict[str, Any]) -> Any:
         return data

@@ -19,6 +19,9 @@ config/
 ```
 
 You can describe it as a Python model and load everything into a single structure.
+Schemas describe the structure, fields describe how each node is loaded, and filesystem access goes
+through an `FSInterface`. `FSLoader` uses `LocalFSInterface` by default, but custom filesystem-like
+backends can be provided with `FSLoader(schema=..., fs=...)`.
 
 ```python
 from fschema.fields import meta, node
@@ -82,7 +85,7 @@ All meta fields inherit from `MetaField`.
 Meta field types:
 - `NodeName()` - special type of field that loads the name of the current node (directory or file)
 - `Content(reader: Reader, data_transformer: DataTransformer)` - for use inside a sub-schema of a `SchematizedFile`;
-  `reader` parses the content to JSON-like data;
+  `reader` parses content provided by `FSLoader` to JSON-like data;
   `data_transformer` loads it into an object and/or validates the data
 
 #### Node Fields
@@ -107,7 +110,7 @@ Node field types:
 - `ListDirectory(nested_field: Field, fs_name: str | None)` - load directory as a list of nodes;
   the given field instance is applied to all nested nodes
 - `File(fs_name: str | None, reader: Reader, data_transformer: DataTransformer)` - load file content;
-  `reader` parses the content to JSON-like data;
+  `reader` parses content provided by `FSLoader` to JSON-like data;
   `data_transformer` loads it into an object and/or validates the data
 - `SchematizedFile(file_schema: Schema, fs_name: str | None)` - load the file as a schematized mapping instead of a single flat object;
   this is useful if you need access to its metadata (e.g. via `NodeName`);
@@ -115,9 +118,21 @@ Node field types:
 ### Content Readers
 
 Available content readers:
-- `JSONReader` - loads content as JSON (as a `dict`)
-- `YamlReader` - loads data as YAML (as a `dict`)
-- `TextReader` - loads data as text (`str`); this is the default reader
+- `JSONReader` - parses content as JSON (as a `dict`)
+- `YamlReader` - parses content as YAML (as a `dict`)
+- `TextReader` - returns content as text (`str`); this is the default reader
+
+### Filesystem Interface
+
+Filesystem access is abstracted behind `FSInterface`.
+The default `LocalFSInterface` supports local paths via `pathlib`.
+Custom backends can implement:
+- `node_name(path)`
+- `child_path(path, fs_name)`
+- `list_directory(path)`
+- `require_file(path)`
+- `require_directory(path)`
+- `read_file(path, encoding="utf-8")`
 
 ### Data Transformers
 

@@ -3,15 +3,19 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from pathlib import Path
-from typing import Any
+from typing import Any, Callable
+
+from fschema.fs_interface import FSInterface
 
 
 @dataclass(frozen=True)
 class LoadContext:
-    """Filesystem node currently being loaded."""
+    """Context passed to fields while loading a filesystem-like node."""
 
-    path: Path
+    path: Any
+    fs: FSInterface
+    load_schema: Callable[[Any, Any], Any]
+    load_field: Callable[["Field", Any], Any]
 
 
 class Field:

@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+from fschema.data_transformers import DataTransformer, IdentityTransformer
 from typing import Any
 
-from fschema.data_transformers import DataTransformer, IdentityTransformer
 from fschema.fields.base import Field, LoadContext
 from fschema.readers import Reader, TextReader
 
@@ -17,7 +17,7 @@ class NodeName(MetaField):
     """Load the name of the current filesystem node."""
 
     def load(self, context: LoadContext) -> str:
-        return context.path.name
+        return context.fs.node_name(context.path)
 
 
 class Content(MetaField):
@@ -33,4 +33,7 @@ class Content(MetaField):
         self.data_transformer = data_transformer or IdentityTransformer()
 
     def load(self, context: LoadContext) -> Any:
-        return self.data_transformer.transform(self.reader.read(context.path))
+        context.fs.require_file(context.path)
+        encoding = getattr(self.reader, "encoding", "utf-8")
+        content = context.fs.read_file(context.path, encoding=encoding)
+        return self.data_transformer.transform(self.reader.read(content))
