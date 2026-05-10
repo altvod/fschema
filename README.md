@@ -37,7 +37,7 @@ class ServiceConfigSchema(Schema):
     config = node.File(name="config.yaml")
     env = node.File(name="env")
     plugins = node.ListDirectory(node.SchematizedDirectory(PluginConfigSchema()))
-    profiles = node.ListDirectory(node.SchematizedDirectory(PluginConfigSchema()))
+    profiles = node.ListDirectory(node.SchematizedFile(PluginConfigSchema()))
 
 data = FSLoader(schema=ServiceConfigSchema()).load("/path/to/config")
 print(data)
