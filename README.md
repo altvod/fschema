@@ -1,6 +1,13 @@
 # fschema
 Marshmallow-like schematization of a directory structure
 
+## Installation
+
+Simply install it from PyPI
+```bash
+pip install fschema
+```
+
 ## Quickstart Example
 
 Let's say you have the following directory/file structure:
@@ -138,3 +145,44 @@ Custom backends can implement:
 
 Available data transformers:
 - `MarshmallowLoader(schema: Any)` - loads the file data via a `marshmallow` schema
+
+## Contribute
+
+Feel free to contribute. I can't guarantee I'll review PRs fast, but I'll do my best.
+
+### Setup
+
+For local development, create a virtual environment and install the development extras:
+```bash
+python -m venv .venv
+.venv/bin/python -m pip install -e ".[dev]"
+```
+
+If your tools live somewhere else, copy `.make.env.example` to `.make.env` and adjust the paths:
+```bash
+cp .make.env.example .make.env
+```
+
+The local `.make.env` file is ignored by git and can contain machine-specific values:
+```make
+PYTHON = venv-fschema-3.14/bin/python
+RUFF = venv-fschema-3.14/bin/ruff
+```
+
+### Checking
+
+Before opening a pull request, run:
+```bash
+make test
+```
+
+`make test` first runs `make format-check`, then runs the unit tests.
+To fix lint and formatting issues automatically, run:
+```bash
+make format
+```
+
+You can also run the validation step directly:
+```bash
+make format-check
+```

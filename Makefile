@@ -18,7 +18,7 @@ format:
 	$(RUFF) check . --fix
 	$(RUFF) format .
 
-test:
+test: format-check
 	PYTHONPATH=src $(PYTHON) -m unittest discover -s tests
 
 pypi-token-check:
