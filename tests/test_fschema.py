@@ -8,12 +8,12 @@ from tempfile import TemporaryDirectory
 from typing import Any
 
 from fschema.data_transformers import MarshmallowLoader
+from fschema.fields import meta, node
 from fschema.fields.base import Field
 from fschema.fields.meta import MetaField
 from fschema.fields.node import NodeField
-from fschema.fields import meta, node
-from fschema.fs_loader import FSLoader
 from fschema.fs import FSInterface, LocalFSInterface
+from fschema.fs_loader import FSLoader
 from fschema.readers import JSONReader, TextReader
 from fschema.schema import Schema
 

@@ -1,7 +1,7 @@
 """Marshmallow-like schematization of a directory structure."""
 
-from fschema.fs_loader import FSLoader
 from fschema.fs import FSInterface, LocalFSInterface
+from fschema.fs_loader import FSLoader
 from fschema.schema import Schema
 
 __version__ = "0.1.0"

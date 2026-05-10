@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from copy import copy
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 from fschema.fs import FSInterface
 
@@ -19,8 +20,8 @@ class LoadContext:
 
     path: Path
     fs: FSInterface
-    load_schema: Callable[["Schema", Path], Any]
-    load_field: Callable[["Field", Path], Any]
+    load_schema: Callable[[Schema, Path], Any]
+    load_field: Callable[[Field, Path], Any]
 
 
 @dataclass(frozen=True)

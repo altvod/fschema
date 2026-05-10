@@ -28,6 +28,7 @@ classifiers = [
 dependencies = []
 
 [project.optional-dependencies]
+dev = ["ruff>=0.8"]
 marshmallow = ["marshmallow>=3"]
 yaml = ["PyYAML>=6"]
 all = [
@@ -44,3 +45,16 @@ package-dir = { "" = "src" }
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+  "B",
+  "E",
+  "F",
+  "I",
+  "UP",
+]
