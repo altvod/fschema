@@ -7,7 +7,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any
 
-from fschema.data_transformers import MarshmallowLoader
+from fschema.data import MarshmallowLoader
 from fschema.fields import meta, node
 from fschema.fields.base import Field
 from fschema.fields.meta import MetaField

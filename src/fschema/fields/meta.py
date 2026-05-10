@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-from fschema.data_transformers import DataTransformer, IdentityTransformer
+from fschema.data import DataTransformer, IdentityTransformer
 from fschema.fields.base import Field, LoadContext
 from fschema.readers import Reader, TextReader
 

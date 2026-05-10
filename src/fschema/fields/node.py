@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from fschema.data_transformers import DataTransformer, IdentityTransformer
+from fschema.data import DataTransformer, IdentityTransformer
 from fschema.fields.base import Field, LoadContext
 from fschema.readers import Reader, TextReader
 
