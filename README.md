@@ -91,8 +91,10 @@ Node fields correspond to actual filesystem nodes (directories/fields).
 All node fields have the optional argument `fs_name` - this is the name of the filesystem node
 the field corresponds to - useful if the filename has a period (`.`) in it,
 and, therefore cannot be used as the field's attribute name.
-Fields also expose `effective_fs_name`, which is the resolved filesystem name:
-the explicit `fs_name` when provided, otherwise the schema attribute name.
+
+Exposed properties:
+- `effective_fs_name` - the resolved filesystem name: the explicit `fs_name` when provided,
+  otherwise the schema attribute name.
 
 Node field types:
 - `SchematizedDirectory(directory_schema: Schema, fs_name: str | None)` - load directory as a key-value mapping
